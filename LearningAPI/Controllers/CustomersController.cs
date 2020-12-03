@@ -25,9 +25,15 @@ namespace LearningAPI.Controllers
         }
 
         [HttpPost]
-        public void Post(Customer customer)
+        public IActionResult Post(Customer customer)
         {
-            _customers.Add(customer); 
+            //If it passes the regular expression check
+            if (ModelState.IsValid)
+            {
+                _customers.Add(customer);
+                return Ok();
+            }
+            return BadRequest(ModelState);
         }
 
         
