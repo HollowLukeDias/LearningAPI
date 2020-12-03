@@ -1,5 +1,6 @@
 ﻿using LearningAPI.Data;
 using LearningAPI.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -31,15 +32,30 @@ namespace LearningAPI.Controllers
 
         // GET api/<ProductsController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult Get(int id)
         {
-            return "value";
+            var product = productsDbContext.Products.SingleOrDefault(prod => prod.ProductID == id);
+            if (product == null)
+            {
+                return NotFound("No Product has been found with the given id");
+            }
+            return Ok(product);
         }
 
         // POST api/<ProductsController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IActionResult Post([FromBody] Product product)
         {
+            //Model State just validates wheter or not the class under the model has the right elements
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            productsDbContext.Products.Add(product);
+            productsDbContext.SaveChanges(true);
+            return StatusCode(StatusCodes.Status201Created);
+
+
         }
 
         // PUT api/<ProductsController>/5
