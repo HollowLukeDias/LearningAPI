@@ -18,21 +18,22 @@ namespace LearningAPI.Controllers
             new Product(){ProductID = 0, ProductName = "Life", ProductPrice = "0"}
         };
 
-        public IEnumerable<Product> Get()
+        public IActionResult Get()
         {
-            return _products;
+            return Ok(_products);
         }
 
         [HttpPost]
-        public void Post([FromBody]Product product)
+        public IActionResult Post([FromBody]Product product)
         {
             _products.Add(product);
+            return StatusCode(StatusCodes.Status201Created);
         }
 
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] Product product)
         {
-            _products[id] = product;
+            _products[id] = product;    
         }
 
         [HttpDelete("{id}")]
