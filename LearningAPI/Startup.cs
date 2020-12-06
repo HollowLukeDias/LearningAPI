@@ -1,4 +1,5 @@
-﻿using LearningAPI.Data;
+﻿using DocumentFormat.OpenXml.EMMA;
+using LearningAPI.Data;
 using LearningAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,7 +29,7 @@ namespace LearningAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2).AddXmlSerializerFormatters();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             //Using SQL server, and configuring it
             services.AddDbContext<ProductsDbContext>(option => option.UseSqlServer(@"Data Source=(localdb)\ProjectsV13;Initial Catalog=ProductsDb;"));
             services.AddScoped<IProduct, ProductRepository>();
