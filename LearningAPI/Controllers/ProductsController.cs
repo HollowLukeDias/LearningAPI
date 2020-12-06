@@ -1,5 +1,6 @@
 ﻿using LearningAPI.Data;
 using LearningAPI.Models;
+using LearningAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -16,33 +17,28 @@ namespace LearningAPI.Controllers
     public class ProductsController : ControllerBase
     {
 
-        ProductsDbContext productsDbContext;
+        private IProduct productRepository;
 
-        public ProductsController(ProductsDbContext _productsDbContext)
+        public ProductsController(IProduct _productRepository)
         {
-            productsDbContext = _productsDbContext;
+            productRepository = _productRepository;
         }
 
-        // GET: api/<ProductsController>
         [HttpGet]
-        public IEnumerable<Product> Get()
-        {
-            return productsDbContext.Products;
-        }
+        public IEnumerable<Product> Get(string searchProduct) => productRepository.GetProducts();
+            
 
-        // GET api/<ProductsController>/5
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var product = productsDbContext.Products.SingleOrDefault(prod => prod.ProductID == id);
-            if (product == null)
-            {
-                return NotFound("No Product has been found with the given id");
-            }
+            var product = productRepository.GetProduct(id);
+
+            if (product == null) 
+                return NotFound("No product found");
+
             return Ok(product);
         }
 
-        // POST api/<ProductsController>
         [HttpPost]
         public IActionResult Post([FromBody] Product product)
         {
@@ -51,23 +47,36 @@ namespace LearningAPI.Controllers
             {
                 return BadRequest();
             }
-            productsDbContext.Products.Add(product);
-            productsDbContext.SaveChanges(true);
+            productRepository.AddProduct(product);
             return StatusCode(StatusCodes.Status201Created);
 
 
         }
 
-        // PUT api/<ProductsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IActionResult Put(int id, [FromBody] Product product)
         {
+            if (!ModelState.IsValid)     return BadRequest(ModelState);
+            if (id != product.ProductID) return BadRequest("The ID in the submission is different from the Product ID");
+
+            try
+            {
+                productRepository.UpdateProduct(product);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return NotFound("No Product found with this id");
+            }
+
+            return Ok("Product Updated Successfully");
         }
 
-        // DELETE api/<ProductsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            productRepository.Delete(id);
+            return Ok("The product has been deleted");
         }
     }
 }
